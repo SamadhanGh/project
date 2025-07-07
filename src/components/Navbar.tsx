@@ -27,10 +27,9 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showExploreDropdown, setShowExploreDropdown] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const location = useLocation();
   const { t } = useTranslation();
-  const { login } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,13 +96,9 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const handleAuthSuccess = (userData: any) => {
-    login(userData);
-    setShowAuthModal(false);
-  };
-
-  const handleSignUpClick = () => {
-    setShowAuthModal(true);
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
@@ -274,47 +269,61 @@ const Navbar = () => {
               </motion.div>
 
               {/* Sign Up Button */}
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="hidden md:block"
-              >
-                <button 
-                  onClick={handleSignUpClick}
-                  className="group relative bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:from-amber-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl overflow-hidden"
+              {isAuthenticated ? (
+                <div className="hidden md:flex items-center space-x-4">
+                  <span className="text-sm text-gray-700">Welcome, {user?.username}</span>
+                  <motion.button
+                    onClick={handleLogout}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-600 transition-all"
+                  >
+                    Logout
+                  </motion.button>
+                </div>
+              ) : (
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="hidden md:block"
                 >
-                  <div className="flex items-center space-x-2 relative z-10">
+                  <Link
+                    to="/login"
+                    className="group relative bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:from-amber-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl overflow-hidden"
+                  >
+                    <div className="flex items-center space-x-2 relative z-10">
+                      <motion.div
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <UserPlus className="h-4 w-4" />
+                      </motion.div>
+                      <span>Sign In</span>
+                    </div>
+                    
+                    {/* Animated background */}
                     <motion.div
-                      whileHover={{ rotate: 360 }}
+                      className="absolute inset-0 bg-white/20"
+                      initial={{ x: '-100%' }}
+                      whileHover={{ x: '100%' }}
                       transition={{ duration: 0.6 }}
-                    >
-                      <UserPlus className="h-4 w-4" />
-                    </motion.div>
-                    <span>Sign Up</span>
-                  </div>
-                  
-                  {/* Animated background */}
-                  <motion.div
-                    className="absolute inset-0 bg-white/20"
-                    initial={{ x: '-100%' }}
-                    whileHover={{ x: '100%' }}
-                    transition={{ duration: 0.6 }}
-                  />
-                  
-                  {/* Glow effect */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
-                </button>
-              </motion.div>
+                    />
+                    
+                    {/* Glow effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500"
+                      animate={{
+                        scale: [1, 1.2, 1],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  </Link>
+                </motion.div>
+              )}
 
               {/* Mobile menu button */}
               <div className="lg:hidden">
@@ -375,23 +384,41 @@ const Navbar = () => {
                 ))}
                 
                 {/* Mobile Sign Up Button */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: (navItems.length + exploreItems.length) * 0.1 }}
-                  className="pt-4 border-t border-gray-200"
-                >
-                  <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      handleSignUpClick();
-                    }}
-                    className="flex items-center justify-center space-x-2 w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-3 rounded-xl font-medium hover:from-amber-600 hover:to-orange-700 transition-all shadow-lg"
+                {isAuthenticated ? (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (navItems.length + exploreItems.length) * 0.1 }}
+                    className="pt-4 border-t border-gray-200 space-y-2"
                   >
-                    <UserPlus className="h-4 w-4" />
-                    <span>Sign Up</span>
-                  </button>
-                </motion.div>
+                    <div className="text-center text-gray-700 font-medium">Welcome, {user?.username}</div>
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        handleLogout();
+                      }}
+                      className="flex items-center justify-center space-x-2 w-full bg-red-500 text-white px-4 py-3 rounded-xl font-medium hover:bg-red-600 transition-all"
+                    >
+                      <span>Logout</span>
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (navItems.length + exploreItems.length) * 0.1 }}
+                    className="pt-4 border-t border-gray-200"
+                  >
+                    <Link
+                      to="/login"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center justify-center space-x-2 w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-3 rounded-xl font-medium hover:from-amber-600 hover:to-orange-700 transition-all shadow-lg"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      <span>Sign In</span>
+                    </Link>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           )}
@@ -400,13 +427,6 @@ const Navbar = () => {
 
       {/* Spacer to prevent content from hiding behind fixed navbar */}
       <div className="h-16"></div>
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={handleAuthSuccess}
-      />
     </>
   );
 };

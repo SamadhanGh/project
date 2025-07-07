@@ -1,17 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authApi } from '../../utils/authApi';
+import { authApi } from '../../utils/api';
 
 interface User {
   id: number;
   username: string;
   email: string;
-  roles: string[];
+  role: 'USER' | 'ADMIN';
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isUser: boolean;
   login: (userData: any) => void;
   logout: () => void;
   loading: boolean;
@@ -40,8 +41,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initAuth = () => {
       try {
         const currentUser = authApi.getCurrentUser();
-        if (currentUser && authApi.isAuthenticated()) {
-          setUser(currentUser.user);
+        const token = localStorage.getItem('jwt_token');
+        
+        if (currentUser && token) {
+          setUser(currentUser);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -55,6 +58,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = (userData: any) => {
+    // Store JWT token and user data
+    localStorage.setItem('jwt_token', userData.token);
+    localStorage.setItem('user_data', JSON.stringify(userData.user));
     setUser(userData.user);
   };
 
@@ -66,7 +72,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
-    isAdmin: user?.roles?.includes('ROLE_ADMIN') || false,
+    isAdmin: user?.role === 'ADMIN',
+    isUser: user?.role === 'USER',
     login,
     logout,
     loading

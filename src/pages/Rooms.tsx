@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Room, CreateBooking, Booking } from '../types/room';
 import { roomApi } from '../utils/roomApi';
+import { bookingApi } from '../utils/api';
 import PaymentModal from '../components/PaymentModal';
 import toast from 'react-hot-toast';
 import { format, differenceInDays } from 'date-fns';
@@ -92,7 +93,7 @@ const Rooms = () => {
       }
 
       // Create booking
-      const booking = await roomApi.createBooking(bookingData);
+      const booking = await bookingApi.createBooking(bookingData);
       setCurrentBooking(booking);
       
       // Close booking modal and open payment modal

@@ -14,6 +14,12 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import Rooms from './pages/Rooms';
 import Reviews from './pages/Reviews';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import UserDashboard from './pages/UserDashboard';
+import Unauthorized from './pages/Unauthorized';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import WhatsAppFloat from './components/WhatsAppFloat';
@@ -31,12 +37,22 @@ function App() {
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/unauthorized" element={<Unauthorized />} />
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/facilities" element={<Facilities />} />
                 <Route path="/rooms" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requireUser>
                     <Rooms />
+                  </ProtectedRoute>
+                } />
+                <Route path="/user/dashboard" element={
+                  <ProtectedRoute requireUser>
+                    <UserDashboard />
                   </ProtectedRoute>
                 } />
                 <Route path="/reviews" element={<Reviews />} />

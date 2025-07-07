@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, Eye, EyeOff, Mountain, Shield } from 'lucide-react';
-import { authApi, LoginRequest } from '../../utils/api';
-import { useAuth } from '../../components/auth/AuthProvider';
+import { Link, useNavigate } from 'react-router-dom';
+import { Lock, User, Eye, EyeOff, Mountain, Mail } from 'lucide-react';
+import { authApi, LoginRequest } from '../utils/api';
+import { useAuth } from '../components/auth/AuthProvider';
 import toast from 'react-hot-toast';
 
-const AdminLogin = () => {
+const Login = () => {
   const [credentials, setCredentials] = useState<LoginRequest>({
     email: '',
     password: ''
@@ -22,18 +22,18 @@ const AdminLogin = () => {
     
     try {
       const response = await authApi.login(credentials);
+      login(response);
       
-      // Check if user is admin
-      if (response.user.role !== 'ADMIN') {
-        toast.error('Access denied. Admin privileges required.');
-        return;
+      // Redirect based on role
+      if (response.user.role === 'ADMIN') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/user/dashboard');
       }
       
-      login(response);
-      navigate('/admin/dashboard');
-      toast.success('Admin login successful!');
+      toast.success('Login successful!');
     } catch (error: any) {
-      console.error('Admin login error:', error);
+      console.error('Login error:', error);
       const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
       toast.error(message);
     } finally {
@@ -53,29 +53,29 @@ const AdminLogin = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen pt-20 pb-16 bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 flex items-center justify-center"
+      className="min-h-screen pt-20 pb-16 bg-gradient-to-br from-amber-100 to-orange-200 flex items-center justify-center"
     >
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl p-8 w-full max-w-md border border-white/20"
+        className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md"
       >
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="bg-blue-100/20 p-3 rounded-full">
-              <Shield className="h-8 w-8 text-blue-300" />
+            <div className="bg-amber-100 p-3 rounded-full">
+              <Mountain className="h-8 w-8 text-amber-600" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Admin Access</h1>
-          <p className="text-white/70">Hotel Kalsubai Gate Point</p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+          <p className="text-gray-600">Sign in to your account</p>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-white/80 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               <Mail className="h-4 w-4 inline mr-1" />
               Email Address
             </label>
@@ -85,13 +85,13 @@ const AdminLogin = () => {
               value={credentials.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white placeholder-white/50"
-              placeholder="Enter admin email"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              placeholder="Enter your email"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white/80 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               <Lock className="h-4 w-4 inline mr-1" />
               Password
             </label>
@@ -102,13 +102,13 @@ const AdminLogin = () => {
                 value={credentials.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white placeholder-white/50 pr-12"
-                placeholder="Enter admin password"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent pr-12"
+                placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/80"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -120,15 +120,15 @@ const AdminLogin = () => {
             disabled={isLoading}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 rounded-xl font-semibold hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Authenticating...
+                Signing in...
               </div>
             ) : (
-              'Access Admin Panel'
+              'Sign In'
             )}
           </motion.button>
         </form>
@@ -138,16 +138,26 @@ const AdminLogin = () => {
           <div className="text-center">
             <Link
               to="/forgot-password"
-              className="text-blue-300 hover:text-blue-200 text-sm font-medium"
+              className="text-amber-600 hover:text-amber-700 text-sm font-medium"
             >
               Forgot your password?
             </Link>
           </div>
           
           <div className="text-center">
+            <span className="text-gray-600 text-sm">Don't have an account? </span>
+            <Link
+              to="/register"
+              className="text-amber-600 hover:text-amber-700 text-sm font-medium"
+            >
+              Sign up
+            </Link>
+          </div>
+          
+          <div className="text-center">
             <Link
               to="/"
-              className="text-white/70 hover:text-white text-sm font-medium"
+              className="text-gray-600 hover:text-gray-700 text-sm font-medium"
             >
               ← Back to Home
             </Link>
@@ -158,4 +168,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin;
+export default Login;

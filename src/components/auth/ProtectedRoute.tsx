@@ -5,10 +5,15 @@ import { useAuth } from './AuthProvider';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  requireUser?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requireAdmin = false, 
+  requireUser = false 
+}) => {
+  const { isAuthenticated, isAdmin, isUser, loading } = useAuth();
 
   if (loading) {
     return (
@@ -19,11 +24,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (requireAdmin && !isAdmin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  if (requireUser && !isUser) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;

@@ -33,14 +33,14 @@ const AdminDashboard = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isAdminLoggedIn');
-    if (!isLoggedIn) {
+    const { isAuthenticated, isAdmin } = useAuth();
+    if (!isAuthenticated || !isAdmin) {
       navigate('/admin/login');
     }
-  }, [navigate]);
+  }, [navigate, useAuth]);
 
   const handleLogout = () => {
-    localStorage.removeItem('isAdminLoggedIn');
+    logout();
     navigate('/');
   };
 
